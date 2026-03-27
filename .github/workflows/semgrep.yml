@@ -1,0 +1,39 @@
+name: Semgrep-SAST-Comparison
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  semgrep_scan:
+    name: "Scan SAST - Ahmed"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # Permet d'envoyer les alertes dans l'onglet Security
+
+    container:
+      image: returntocorp/semgrep
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep Full Scan
+        # On cible spécifiquement les technos de Garance (JS, Docker, Nginx)
+        run: |
+          semgrep scan \
+            --sarif \
+            --config="p/javascript" \
+            --config="p/dockerfile" \
+            --config="p/nginx" \
+            --config="p/secrets" \
+            --output=semgrep_results.sarif
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep_results.sarif
+        if: always()
