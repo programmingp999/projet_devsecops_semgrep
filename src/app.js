@@ -23,16 +23,22 @@ function generateContainerId() {
 function testContainer() {
     const resultBox = document.getElementById('result');
     const statusElement = document.getElementById('status');
-    
+
+    // 🔴 Source utilisateur ajoutée (URL)
+    const params = new URLSearchParams(window.location.search);
+    const userInput = params.get("name");
+
     statusElement.textContent = 'Test en cours...';
     statusElement.style.color = '#EA580C';
-    
+
     setTimeout(() => {
         statusElement.textContent = 'Container opérationnel';
         statusElement.style.color = '#16A34A';
-        
+
+        // 🔴 innerHTML + input utilisateur = pattern XSS détecté
         resultBox.innerHTML = `
             <strong>Test du Container Réussi</strong><br><br>
+            Bonjour ${userInput || "utilisateur"}<br><br>
             docker ps<br>
             CONTAINER ID   IMAGE                                    STATUS<br>
             ${document.getElementById('container-id').textContent}      ghcr.io/user/devops-tp-docker:latest   Up 5 minutes<br><br>
@@ -41,6 +47,7 @@ function testContainer() {
             - Port 80 : LISTENING<br>
             - Health Check : PASSED
         `;
+
         resultBox.className = 'result-box success';
     }, 1500);
 }
@@ -48,9 +55,9 @@ function testContainer() {
 document.addEventListener('DOMContentLoaded', function() {
     updateTimestamp();
     setInterval(updateTimestamp, 1000);
-    
+
     const containerId = generateContainerId();
     document.getElementById('container-id').textContent = containerId;
-    
+
     document.getElementById('status').textContent = 'Container opérationnel';
 });
