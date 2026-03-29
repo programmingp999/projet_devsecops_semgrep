@@ -61,3 +61,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('status').textContent = 'Container opérationnel';
 });
+// Semgrep ne rate JAMAIS cette règle dans p/javascript
+eval("console.log('test')");
