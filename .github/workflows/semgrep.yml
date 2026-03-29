@@ -22,11 +22,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Semgrep Full Scan
-        # On cible spécifiquement les technos de Garance (JS, Docker, Nginx)
         run: |
           semgrep scan \
             --sarif \
             --config="p/javascript" \
+            --config="p/xss" \
+            --config="p/security-audit" \
             --config="p/dockerfile" \
             --config="p/nginx" \
             --config="p/secrets" \
