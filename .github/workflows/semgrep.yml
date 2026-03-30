@@ -1,4 +1,4 @@
-name: Semgrep-SAST-Comparison
+name: Semgrep-SAST-Ahmed-Perfect
 
 on:
   push:
@@ -8,11 +8,12 @@ on:
 
 jobs:
   semgrep_scan:
-    name: "Scan SAST - Ahmed"
+    name: "Scan Complet - Ahmed"
     runs-on: ubuntu-latest
+    
     permissions:
       contents: read
-      security-events: write # Permet d'envoyer les alertes dans l'onglet Security
+      security-events: write # Obligatoire pour l'onglet Security
 
     container:
       image: returntocorp/semgrep
@@ -21,19 +22,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Semgrep Full Scan
+      - name: Execution de Semgrep
+        # On force le scan sur les dossiers spécifiques pour ne rien rater
+        # On utilise 'p/security-audit' pour détecter ton eval() et ton innerHTML
         run: |
           semgrep scan \
             --sarif \
+            --config="p/default" \
+            --config="p/security-audit" \
             --config="p/javascript" \
             --config="p/xss" \
-            --config="p/security-audit" \
             --config="p/dockerfile" \
             --config="p/nginx" \
-            --config="p/secrets" \
-            --output=semgrep_results.sarif
+            --output=semgrep_results.sarif \
+            src/ Dockerfile nginx/
 
-      - name: Upload results to GitHub Security
+      - name: Upload vers GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep_results.sarif

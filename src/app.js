@@ -1,3 +1,30 @@
+// ========================
+// VULNERABILITES POUR SEMGREP
+// ========================
+
+//  Secrets hardcodés
+const API_KEY = "sk_live_123456789abcdef";
+const DB_PASSWORD = "super_secret_password";
+
+//  eval() dangereux
+function runUserCode() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+        eval(code); // 🚨 détecté par Semgrep
+    }
+}
+
+//  Simulation SQL injection
+function fakeSqlQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+
+    const query = "SELECT * FROM users WHERE name = '" + user + "'";
+    console.log("Executing query:", query); // 🚨 détecté
+}
+
 function updateTimestamp() {
     const now = new Date();
     const timestamp = now.toLocaleString('fr-FR', {
@@ -24,7 +51,7 @@ function testContainer() {
     const resultBox = document.getElementById('result');
     const statusElement = document.getElementById('status');
 
-    // 🔴 Source utilisateur ajoutée (URL)
+    //  Source utilisateur ajoutée (URL)
     const params = new URLSearchParams(window.location.search);
     const userInput = params.get("name");
 
@@ -35,7 +62,7 @@ function testContainer() {
         statusElement.textContent = 'Container opérationnel';
         statusElement.style.color = '#16A34A';
 
-        // 🔴 innerHTML + input utilisateur = pattern XSS détecté
+        //  innerHTML + input utilisateur = pattern XSS détecté
         resultBox.innerHTML = `
             <strong>Test du Container Réussi</strong><br><br>
             Bonjour ${userInput || "utilisateur"}<br><br>
@@ -60,6 +87,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('container-id').textContent = containerId;
 
     document.getElementById('status').textContent = 'Container opérationnel';
+
+    runUserCode();
+    fakeSqlQuery();
 });
-// Semgrep ne rate JAMAIS cette règle dans p/javascript
-eval("console.log('test')");
+
+
